@@ -1,0 +1,295 @@
+<head>
+    <title>BROWSE PHOTOS</title>
+</head>
+{% if message %}
+  <h4>{{message}}</h4>
+{% endif %}
+<form method="post" enctype="multipart/form-data" action="/search">
+	<label for="uemail">Search by user email:</label>
+	<input type="email" name="uemail" />
+	<input type="submit" value="Search" />
+</form>
+
+<form method="post" enctype="multipart/form-data" action="/search">
+	<label for="commenttext">Search by comment text:</label>
+	<input type="text" name="commenttext" />
+	<input type="submit" value="Search" />
+</form>
+
+<form method="post" enctype="multipart/form-data" action="/multisearch">
+	<label for="mtid">Search by multiple tags (separate each with a space):</label>
+	<input type="text" name="mtid" />
+	<input type="submit" value="Search" />
+</form>
+
+{% if foundtag %}
+{% if viewtags %}
+	<ul>
+	{% for photo in viewtags %}
+        	<li>{{photo[2]}}<br>
+        	<img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+		<form method="post" enctype="multipart/form-data" action="/like">
+			<label for="lbutton"></label>
+			<input type="hidden" name="lbutton" value="{{photo[1]}}" />
+			<label for="tid"></label>
+			<input type="hidden" name="tid" value="{{foundtag}}" />
+			<input type="submit" value="Like This Photo" />
+		</form>
+		{% for photoid, like in likes.items() %}
+			{% if photoid[0] == photo[1] %}
+				<p>Number of likes: {{like[0]}}</p>
+				{% for user in like[1] %} 
+					<ul>{{user[0]}} {{user[1]}} liked this picture<br></ul>
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+		{% if tagdict %}
+			{% for photoid, tags in tagdict.items() %}
+				{% if photoid == photo[1] %}
+					<p>Tags:</p>
+    					{% for tag in tags %}
+        					<li>{{tag[0]}}<br>
+						</li>
+    					{% endfor %}
+				{% endif %}
+			{% endfor %}<br>
+		{% endif %}
+		{% if commentdict %}
+			{% for photoid, comments in commentdict.items() %}
+				{% if photoid == photo[1] %}
+					<p>Comments:</p>
+    					{% for comment in comments %}	
+						<li>Posted on {{comment[2]}}<br>
+						{{comment[0]}} {{comment[1]}}:<br>
+						{{comment[3]}}<br>
+						</li>
+    					{% endfor %}
+				{% endif %}
+			{% endfor %}<br>
+		{% endif %}
+		<form method="post" enctype="multipart/form-data" action="/comment">
+			<label for="newcomment">Comment on this photo:</label>
+			<input type="text" name="newcomment" />
+			<label for="pid"></label>
+			<input type="hidden" name="pid" value="{{photo[1]}}" />
+			<label for="uid"></label>
+			<input type="hidden" name="uid" value="{{photo[4]}}" />
+			<label for="tid"></label>
+			<input type="hidden" name="tid" value="{{foundtag}}" />
+			<input type="submit" value="Comment" />
+		</form>
+	{% endfor %}
+	</ul>
+{% endif %}
+{% endif %}
+
+{% if founduser %}
+	{% if viewalbum %}
+		<ul>
+		{% for photo in viewalbum %}
+        		<li>{{photo[2]}}<br>
+        		<img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+			<form method="post" enctype="multipart/form-data" action="/like">
+				<label for="lbutton"></label>
+				<input type="hidden" name="lbutton" value="{{photo[1]}}" />
+				<label for="aid"></label>
+				<input type="hidden" name="aid" value="{{photo[3]}}" />
+				<input type="submit" value="Like This Photo" />
+			</form>
+			{% for photoid, like in likes.items() %}
+				{% if photoid[0] == photo[1] %}
+					<p>Number of likes: {{like[0]}}</p>
+					{% for user in like[1] %} 
+						<ul>{{user[0]}} {{user[1]}} liked this picture<br></ul>
+					{% endfor %}
+				{% endif %}
+			{% endfor %}
+			{% if tagdict %}
+				{% for photoid, tags in tagdict.items() %}
+					{% if photoid == photo[1] %}
+						<p>Tags:</p>
+    						{% for tag in tags %}
+        						<li>{{tag[0]}}<br>
+							</li>
+    						{% endfor %}
+					{% endif %}
+				{% endfor %}<br>
+			{% endif %}
+			{% if commentdict %}
+				{% for photoid, comments in commentdict.items() %}
+					{% if photoid == photo[1] %}
+						<p>Comments:</p>
+    						{% for comment in comments %}	
+							<li>Posted on {{comment[2]}}<br>
+							{{comment[0]}} {{comment[1]}}:<br>
+							{{comment[3]}}<br>
+							</li>
+    						{% endfor %}
+					{% endif %}
+				{% endfor %}<br>
+			{% endif %}
+			<form method="post" enctype="multipart/form-data" action="/comment">
+				<label for="newcomment">Comment on this photo:</label>
+				<input type="text" name="newcomment" />
+				<label for="pid"></label>
+				<input type="hidden" name="pid" value="{{photo[1]}}" />
+				<label for="uid"></label>
+				<input type="hidden" name="uid" value="{{founduser}}" />
+				<label for="aid"></label>
+				<input type="hidden" name="aid" value="{{photo[3]}}" />
+				<input type="submit" value="Comment" />
+			</form>
+		{% endfor %}
+		</ul>
+	{% endif %}
+	{% if albums %}
+		<h2>Here are their albums. Select one to view its photos.</h2>
+		<ul>
+		{% for album in albums %}
+        		<li><a href='/search?para={{album[1]}}&para1={{founduser}}'>{{album[0]}}</a> </li>
+    		{% endfor %}
+    		</ul>
+	{% endif %}
+{% endif %}
+
+{% if foundcomment %}
+	<ul>
+	{% for user in foundcomment %}
+		<p>User: {{user[0]}} {{user[1]}} has commented like this {{user[2]}} time(s).</p>
+	{% endfor %}
+	</ul>
+{% endif %}
+
+
+{% if recphotos %}
+	<ul>
+	{% for photo in recphotos %}
+        	<li>{{photo[2]}}<br>
+        	<img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+		<form method="post" enctype="multipart/form-data" action="/like">
+			<label for="lbutton"></label>
+			<input type="hidden" name="lbutton" value="{{photo[1]}}" />
+			<input type="submit" value="Like This Photo" />
+		</form>
+		{% for photoid, like in likes.items() %}
+			{% if photoid[0] == photo[1] %}
+				<p>Number of likes: {{like[0]}}</p>
+				{% for user in like[1] %} 
+					<ul>{{user[0]}} {{user[1]}} liked this picture<br></ul>
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+		{% if tagdict %}
+			{% for photoid, tags in tagdict.items() %}
+				{% if photoid == photo[1] %}
+					<p>Tags:</p>
+    					{% for tag in tags %}
+        					<li>{{tag[0]}}<br>
+						</li>
+    					{% endfor %}
+				{% endif %}
+			{% endfor %}<br>
+		{% endif %}
+		{% if commentdict %}
+			{% for photoid, comments in commentdict.items() %}
+				{% if photoid == photo[1] %}
+					<p>Comments:</p>
+    					{% for comment in comments %}	
+						<li>Posted on {{comment[2]}}<br>
+						{{comment[0]}} {{comment[1]}}:<br>
+						{{comment[3]}}<br>
+						</li>
+    					{% endfor %}
+				{% endif %}
+			{% endfor %}<br>
+		{% endif %}
+		<form method="post" enctype="multipart/form-data" action="/comment">
+			<label for="newcomment">Comment on this photo:</label>
+			<input type="text" name="newcomment" />
+			<label for="pid"></label>
+			<input type="hidden" name="pid" value="{{photo[1]}}" />
+			<label for="uid"></label>
+			<input type="hidden" name="uid" value="{{photo[4]}}" />
+			<input type="submit" value="Comment" />
+		</form>
+	{% endfor %}
+	</ul>
+{% endif %}
+
+{% if viewmultitags %}
+	<ul>
+	{% for photo in viewmultitags %}
+        	<li>{{photo[2]}}<br>
+        	<img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+		<form method="post" enctype="multipart/form-data" action="/like">
+			<label for="lbutton"></label>
+			<input type="hidden" name="lbutton" value="{{photo[1]}}" />
+			<label for="mtid"></label>
+			<input type="hidden" name="mtid" value="{{multitags}}" />
+			<input type="submit" value="Like This Photo" />
+		</form>
+		{% for photoid, like in likes.items() %}
+			{% if photoid[0] == photo[1] %}
+				<p>Number of likes: {{like[0]}}</p>
+				{% for user in like[1] %} 
+					<ul>{{user[0]}} {{user[1]}} liked this picture<br></ul>
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+		{% if tagdict %}
+			{% for photoid, tags in tagdict.items() %}
+				{% if photoid == photo[1] %}
+					<p>Tags:</p>
+    					{% for tag in tags %}
+        					<li>{{tag[0]}}<br>
+						</li>
+    					{% endfor %}
+				{% endif %}
+			{% endfor %}<br>
+		{% endif %}
+		{% if commentdict %}
+			{% for photoid, comments in commentdict.items() %}
+				{% if photoid == photo[1] %}
+					<p>Comments:</p>
+    					{% for comment in comments %}	
+						<li>Posted on {{comment[2]}}<br>
+						{{comment[0]}} {{comment[1]}}:<br>
+						{{comment[3]}}<br>
+						</li>
+    					{% endfor %}
+				{% endif %}
+			{% endfor %}<br>
+		{% endif %}
+		<form method="post" enctype="multipart/form-data" action="/comment">
+			<label for="newcomment">Comment on this photo:</label>
+			<input type="text" name="newcomment" />
+			<label for="pid"></label>
+			<input type="hidden" name="pid" value="{{photo[1]}}" />
+			<label for="uid"></label>
+			<input type="hidden" name="uid" value="{{photo[4]}}" />
+			<label for="mtid"></label>
+			<input type="hidden" name="mtid" value="{{multitags}}" />
+			<input type="submit" value="Comment" />
+		</form>
+	{% endfor %}
+	</ul>
+{% endif %}
+
+<h2>Here are the most popular tags:</h2>
+{% for tag in ptaglist %}
+	<li><a href='/tagsearch?para={{tag[1]}}'>{{tag[0]}}</a> </li>
+{% endfor %}
+
+<h2>List of all existing tags:</h2>
+{% for tag in taglist %}
+	<li><a href='/tagsearch?para={{tag[1]}}'>{{tag[0]}}</a> </li>
+{% endfor %}
+
+<br>
+<form method="get" enctype="multipart/form-data" action="/recommended">
+	<input type="submit" value="View some recommended photos that you may also like" />
+</form>
+
+<ul>
+<li><a href='/'>Home</a></li>
+</ul>
