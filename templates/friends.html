@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+    <title>Add a friend!</title>
+</head>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+    <body>
+        <div class="title">
+            <h1>Add a friend on Photoshare</h1>
+        </div>
+            <form method="post" enctype="multipart/form-data" action="/friend">
+		<label for="email">Please input the email of the person you want to add as friend:</label>
+                <input type="email" name="email" required='true' /><br />
+                <input type="submit" value="Add" />
+            </form>
+    </body>
+{% if friends %}
+<h2>Here are your friends</h2>
+    <ul>
+    {% for friend in friends %}
+        <li>{{friend[0] + " " + friend[1]}}<br>
+        </li>
+    {% endfor %}
+    </ul>
+<h2>Here are some recommended friends</h2>
+    <ul>
+    {% for friend in friends2 %}
+        <li>{{friend[2]}}<br>
+        </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<ul>
+<li><a href='/'>Home</a></li>
+</ul>

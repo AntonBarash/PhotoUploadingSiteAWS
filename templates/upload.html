@@ -1,0 +1,169 @@
+<head>
+    <title>ALBUMS</title>
+</head>
+
+{% if message %}
+	<h2>{{message}}</h2>
+{% endif %}
+
+{% if zero %}
+<h2>Add a photo to this album!</h2>
+    <ul>
+	<form method="post" enctype="multipart/form-data" action="/upload">
+                <label for="photo">Select photo:</label>
+                <input type="file" name="photo" required='true' /><br />
+                <label for="caption">Please caption:</label>
+                <input type="text" name="caption" required='true' /><br />
+		<label for="aid"></label>
+		<input type="hidden" name="aid" value="{{zero}}" />
+                <input type="submit" value="Upload" />
+         </form>
+	<form method="post" enctype="multipart/form-data" action="/deletealbum">
+    		<label for="aid"></label>
+    		<input type="hidden" name="aid" value="{{zero}}" />
+    		<input type="submit" value="Delete Album" />
+	</form>
+    </ul>
+{% endif %}
+{% if viewalbum %}
+    <h2>Add a photo to this album!</h2>
+    <ul>
+	<form method="post" enctype="multipart/form-data" action="/upload">
+                <label for="photo">Select photo:</label>
+                <input type="file" name="photo" required='true' /><br />
+                <label for="caption">Please caption:</label>
+                <input type="text" name="caption" required='true' /><br />
+		<label for="aid"></label>
+		<input type="hidden" name="aid" value="{{viewalbum[0][3]}}" />
+                <input type="submit" value="Upload" />
+         </form>
+    </ul>
+    <ul>
+    {% for photo in viewalbum %}
+        <li>{{photo[2]}}<br>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+	{% for photoid, like in likes.items() %}
+		{% if photoid[0] == photo[1] %}
+			<p>Number of likes: {{like[0]}}</p>
+			{% for user in like[1] %} 
+				<ul>{{user[0]}} {{user[1]}} liked this picture<br></ul>
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+	<form method="post" enctype="multipart/form-data" action="/deletephoto">
+	<label for="pid"></label>
+	<input type="hidden" name="pid" value="{{photo[1]}}" />
+	<label for="aid"></label>
+	<input type="hidden" name="aid" value="{{viewalbum[0][3]}}" />
+	<input type="submit" value="Delete This Photo" />
+	</form>
+	{% if tagdict %}
+		{% for photoid, tags in tagdict.items() %}
+			{% if photoid == photo[1] %}
+				<p>Tags:</p>
+    				{% for tag in tags %}
+        				<li>{{tag[0]}}<br>
+					</li>
+    				{% endfor %}
+			{% endif %}
+		{% endfor %}<br>
+	{% endif %}
+	{% if commentdict %}
+		{% for photoid, comments in commentdict.items() %}
+			{% if photoid == photo[1] %}
+				<p>Comments:</p>
+    				{% for comment in comments %}	
+					<li>Posted on {{comment[2]}}<br>
+					{{comment[0]}} {{comment[1]}}:<br>
+					{{comment[3]}}<br>
+					</li>
+    				{% endfor %}
+			{% endif %}
+		{% endfor %}<br>
+	{% endif %}
+	<form method="post" enctype="multipart/form-data" action="/upload">
+	<label for="tag">Input a tag for this photo:</label>
+        <input type="text" name="tag" required='true' /><br />
+	<label for="pid"></label>
+	<input type="hidden" name="pid" value="{{photo[1]}}" />
+	<label for="aidinphoto"></label>
+	<input type="hidden" name="aidinphoto" value="{{viewalbum[0][3]}}" />
+        <input type="submit" value="Upload" />
+	</form>
+    {% endfor %}
+    </ul>
+    <form method="post" enctype="multipart/form-data" action="/deletealbum">
+    	<label for="aid"></label>
+    	<input type="hidden" name="aid" value="{{viewalbum[0][3]}}" />
+    	<input type="submit" value="Delete Album" />
+    </form>
+{% endif %}
+{% if viewtag %}
+<h2>Here are the photos with that tag!</h2>
+	<ul>
+	{% for photo in viewtag %}
+		<li>{{photo[2]}}<br>
+        	<img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+		{% for photoid, like in likes.items() %}
+			{% if photoid[0] == photo[1] %}
+				<p>Number of likes: {{like[0]}}</p>
+				{% for user in like[1] %} 
+					<ul>{{user[0]}} {{user[1]}} liked this picture<br></ul>
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+		{% if tagdict2 %}
+			{% for photoid, tags in tagdict2.items() %}
+				{% if photoid == photo[1] %}
+					<p>Tags:</p>
+    					{% for tag in tags %}
+        					<li>{{tag[0]}}<br>
+						</li>
+    					{% endfor %}
+				{% endif %}
+			{% endfor %}<br>
+		{% endif %}
+		{% if commentdict2 %}
+			{% for photoid, comments in commentdict2.items() %}
+				{% if photoid == photo[1] %}
+					<p>Comments:</p>
+    					{% for comment in comments %}	
+						<li>Posted on {{comment[2]}}<br>
+						{{comment[0]}} {{comment[1]}}:<br>
+						{{comment[3]}}<br>
+						</li>
+    					{% endfor %}
+				{% endif %}
+			{% endfor %}<br>
+		{% endif %}
+	{% endfor %}
+	</ul>
+{% endif %}
+    <body>
+	    <h2>Make a new album!</h2>
+	    <form method="post" enctype="multipart/form-data" action="/makealbum">
+		<label for="album">What would you like your album to be called?</label>
+                <input type="text" name="album" required='true' /><br />
+                <input type="submit" value="Create" />
+            </form>
+    </body>
+{% if albums %}
+<h2>Here are your albums. Select one if you'd like to view/add/delete photos.</h2>
+    <ul>
+    {% for album in albums %}
+        <li><a href='/upload?para={{album[1]}}'>{{album[0]}}</a> </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% if tags %}
+<h2>Here are your tags. Select one if you'd like to view the photos with that tag.</h2>
+    <ul>
+    {% for tag in tags %}
+        <li><a href='/upload?tpara={{tag[1]}}'>{{tag[0]}}</a> </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<ul>
+<li><a href='/'>Home</a></li>
+</ul>
